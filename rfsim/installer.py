@@ -20,6 +20,7 @@ import numpy
 import time
 from distutils import sysconfig
 
+# Define the FileNotFound errors for python < 3
 try:  # pragma: no cover
     FileExistsError = FileExistsError
     FileNotFoundError = FileNotFoundError
@@ -30,7 +31,6 @@ except NameError:  # pragma: no cover
 
     class FileNotFoundError(IOError):
         pass
-# Import system operations for subprocess executation and log file handling
 
 from setuptools.command.build_ext import build_ext
 

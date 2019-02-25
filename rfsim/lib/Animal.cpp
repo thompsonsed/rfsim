@@ -24,7 +24,7 @@ bool Animal::oldAge()
     return false;
 }
 
-void Animal::move(const std::shared_ptr<RNGController> &random)
+void Animal::move(std::shared_ptr<RNGController> random)
 {
     location.x += static_cast<long>(random->norm(sigma));
     location.y += static_cast<long>(random->norm(sigma));

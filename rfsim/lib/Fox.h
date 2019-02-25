@@ -27,7 +27,7 @@ public:
      * @param rabbits the rabbits list to pick from
      * @param random the random number generator
      */
-    void catchRabbit(vector<Rabbit> &rabbits, const shared_ptr<RNGController> &random);
+    void catchRabbit(vector<Rabbit> &rabbits, shared_ptr<RNGController> random);
 
     /**
      * @brief Checks if this fox can reproduce

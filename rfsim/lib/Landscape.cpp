@@ -53,6 +53,7 @@ void Landscape::iterate()
         for(unsigned long j = 0; j < landscape.getCols(); j++)
         {
             landscape.get(i, j).checkRabbitCarryingCapacity(100);
+            landscape.get(i, j).checkFoxCarryingCapacity(10);
         }
     }
 }
@@ -84,63 +85,35 @@ void Landscape::print()
 
 PyObject* Landscape::getRabbitNumbers()
 {
-    
-        npy_intp dims[2]{static_cast<long int>(landscape.getRows()), static_cast<long int>(landscape.getCols())};
-        int **out_rabbits = new int*[landscape.getRows()];
-        unsigned long index = 0;
-        for(unsigned long i =0; i < landscape.getRows(); i ++)
+    // this is required for numpy
+    import_array1(nullptr);
+    // Dimensions of the numpy array
+    npy_intp dims[2]{static_cast<long int>(landscape.getRows()), static_cast<long int>(landscape.getCols())};
+    // the output data
+    int* out_rabbits = new int[landscape.getRows()*landscape.getCols()];
+    unsigned long index = 0;
+    for(unsigned long i = 0; i < landscape.getRows(); i++)
+    {
+        for(unsigned long j = 0; j < landscape.getCols(); j++)
         {
-            out_rabbits[i] = new int[landscape.getCols()];
-            for(unsigned long j = 0; j < landscape.getCols(); j ++)
-            {
-                out_rabbits[i][j] = static_cast<int>(landscape.get(i, j).getNumRabbits());
-                index ++;
-            }
+            out_rabbits[index] = static_cast<int>(landscape.get(i, j).getNumRabbits());
+            index++;
         }
-        PyObject * pArray = PyArray_SimpleNewFromData(2, dims, NPY_INT, (void * ) out_rabbits);
-        PyObject *capsule = PyCapsule_New(out_rabbits, NULL, capsuleCleanup);
-        // NULL can be a string but use the same string while calling PyCapsule_GetPointer inside capsule_cleanup
-        PyArray_SetBaseObject((PyArrayObject *) pArray, capsule);
-        return pArray;
-//    npy_intp dims[2]{static_cast<long int>(landscape.getRows()), static_cast<long int>(landscape.getCols())};
-//    npy_intp dims2[1]{1};
-////    import_array1(nullptr);
-//    int ** x = new int*[1];
-//    x[0] = new int[1];
-//    *x[0] = 12;
-//
-////    int* out_rabbits = new int[landscape.getRows() * landscape.getCols()];
-//    int** m = new int* [landscape.getRows()];
-//    m[0] = new int[landscape.getRows() * landscape.getCols()];
-//    std::cout << "ref0" << std::endl;
-//    unsigned long index = 0;
-//    for(unsigned long i = 0; i < landscape.getRows(); i++)
-//    {
-//        m[i] = m[0] + (i * landscape.getCols());
-//        for(unsigned long j = 0; j < landscape.getCols(); j++)
-//        {
-//            m[i][j] = static_cast<int>(landscape.get(i, j).getNumRabbits());
-////            out_rabbits[index] = static_cast<int>(landscape.get(i, j).getNumRabbits());
-//            index++;
-//        }
-//    }
-//    std::cout << "ref1" << std::endl;
-//    std::cout << "index" << index << "; " << landscape.getCols() << ", " << landscape.getRows() << std::endl;
-//    std::cout << x[0] << std::endl;
-//    std::cout << *x[0] << std::endl;
-//    PyObject* pArray = PyArray_SimpleNewFromData(1, dims2, NPY_INT, (void*) x[0]);
-//    std::cout << "ref2" << std::endl;
-//    PyObject* capsule = PyCapsule_New(x[0], NULL, capsuleCleanup);
-//    std::cout << "ref3" << std::endl;
-//    // NULL can be a string but use the same string while calling PyCapsule_GetPointer inside capsule_cleanup
-//    PyArray_SetBaseObject((PyArrayObject*) pArray, capsule);
-//    std::cout << "ref4" << std::endl;
-//    return pArray;
+    }
+    PyObject* pArray = PyArray_SimpleNewFromData(2, dims, NPY_INT, (void*) out_rabbits);
+    PyObject* capsule = PyCapsule_New(out_rabbits, NULL, capsuleCleanup);
+    // NULL can be a string but use the same string while calling PyCapsule_GetPointer inside capsule_cleanup
+    PyArray_SetBaseObject((PyArrayObject*) pArray, capsule);
+    return pArray;
 }
 
 PyObject* Landscape::getFoxNumbers()
 {
+    // this is required for numpy
+    import_array1(nullptr);
+    // Dimensions of the numpy array
     npy_intp dims[2]{static_cast<long int>(landscape.getRows()), static_cast<long int>(landscape.getCols())};
+    // the output data
     int* out_foxes = new int[landscape.getRows() * landscape.getCols()];
     unsigned long index = 0;
     for(unsigned long i = 0; i < landscape.getRows(); i++)

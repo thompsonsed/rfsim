@@ -62,7 +62,7 @@ public:
      * @brief Moves a random distance according to a normal distribution.
      * @param random the random number generator
      */
-    void move(const std::shared_ptr<RNGController> &random);
+    void move(std::shared_ptr<RNGController> random);
 
     /**
      * @brief Checks the x, y location of the animal is within the boundaries of the landscape.

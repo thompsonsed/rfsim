@@ -4,7 +4,7 @@
 
 #include "Fox.h"
 
-void Fox::catchRabbit(vector<Rabbit> &rabbits, const shared_ptr<RNGController> &random)
+void Fox::catchRabbit(vector<Rabbit> &rabbits, shared_ptr<RNGController> random)
 {
     if(!rabbits.empty())
     {

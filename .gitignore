@@ -1,3 +1,4 @@
+.ipynb_checkpoints/
 rfsim/tests/__pycache__/
 rfsim/librfsim/__pycache__/
 rfsim/librfsim/librfsim.so

@@ -114,12 +114,11 @@ static PyObject* setup(PyLandscape* self, PyObject* args)
     }
     Py_RETURN_NONE;
 }
-
 /**
- * @brief Sets up the simulation, including importing map files and generating in-memory objects.
- * @tparam T the simulation type
- * @param self the Python self object
- * @param args arguments to parse
+ * @brief Get the array of rabbits
+ * @param self the landscape to get the rabbits for
+ * @param args
+ * @return the array of rabbits
  */
 static PyObject* getRabbitsArray(PyLandscape* self, PyObject* args)
 {
@@ -127,6 +126,26 @@ static PyObject* getRabbitsArray(PyLandscape* self, PyObject* args)
     try
     {
         return self->landscape->getRabbitNumbers();
+    }
+    catch(exception &e)
+    {
+        return nullptr;
+    }
+    Py_RETURN_NONE;
+}
+
+/**
+ * @brief Get the array of foxes
+ * @param self the landscape to get the foxes for
+ * @param args
+ * @return the array of foxes
+ */
+static PyObject* getFoxesArray(PyLandscape* self, PyObject* args)
+{
+    // Set up the simulation, catch and return any errors.
+    try
+    {
+        return self->landscape->getFoxNumbers();
     }
     catch(exception &e)
     {
@@ -175,6 +194,8 @@ static PyMethodDef* genPyLandscapeMethods()
                     "Run the simulation"},
             {"get_rabbits", (PyCFunction) getRabbitsArray, METH_VARARGS,
                     "Get the array of rabbits"},
+            {"get_foxes", (PyCFunction) getFoxesArray, METH_VARARGS,
+                    "Get the array of foxes"},
             {"setup",   (PyCFunction) setup,   METH_VARARGS,
                     "Set up the simulation, importing the maps and assigning the variables."},
             {nullptr}  /* Sentinel */
