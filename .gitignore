@@ -1,0 +1,8 @@
+rfsim/tests/__pycache__/
+rfsim/librfsim/__pycache__/
+rfsim/librfsim/librfsim.so
+*/__pycache__/
+build/
+.idea/
+rfsim.egg-info/
+rfsim/lib/cmake*
