@@ -18,6 +18,8 @@ public:
 
     explicit Rabbit(const Coordinates &coordinates);
 
+    ~Rabbit() = default;
+
     /**
      * @brief Gain energy by eating grass
      * @param grass_amount the total amount of grass available

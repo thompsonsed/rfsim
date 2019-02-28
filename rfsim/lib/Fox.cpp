@@ -9,16 +9,16 @@ void Fox::catchRabbit(vector<Rabbit> &rabbits, shared_ptr<RNGController> random)
     if(!rabbits.empty())
     {
         unsigned long index = random->i0(rabbits.size() - 1);
-        energy += 25;
+        energy += rabbits[index].getEnergy()*0.5;
         rabbits[index].kill();
     }
 }
 
 bool Fox::canReproduce()
 {
-    if(energy > 500)
+    if(energy > 50)
     {
-        energy -= 400;
+        energy -= 50;
         return true;
     }
     return false;
@@ -26,11 +26,11 @@ bool Fox::canReproduce()
 
 void Fox::exist()
 {
-    energy -= 45;
+    energy -= 5;
     age += 1;
 }
 
 bool Fox::oldAge()
 {
-    return age > 10;
+    return age > 30;
 }

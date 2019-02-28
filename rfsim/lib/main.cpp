@@ -5,15 +5,17 @@ using namespace std;
 
 int main()
 {
-    Landscape landscape = Landscape(100);
-    landscape.setLandscapeSize(100, 100);
-    for(unsigned long i = 0; i < 15; i ++)
+    Landscape landscape = Landscape();
+    landscape.setSeed(1);
+    landscape.setLandscapeSize(5, 5);
+    for(unsigned long i = 0; i < 100; i ++)
     {
         std::cout << i << std::endl;
         landscape.iterate();
-        landscape.print();
-
+//        if(i > 999)
+//        {
+            landscape.print();
+//        }
     }
-
     return 0;
 }

@@ -7,20 +7,20 @@
 Rabbit::Rabbit() : Animal(30, 2)
 {}
 
-Rabbit::Rabbit(const Coordinates &coordinates) : Animal(30, 2, coordinates)
+Rabbit::Rabbit(const Coordinates &coordinates) : Animal(10, 2, coordinates)
 {}
 
 void Rabbit::eatGrass(const double &grass_amount)
 {
-    double eaten_amount = min(grass_amount, 10.0);
+    double eaten_amount = min(grass_amount, 30.0);
     energy += eaten_amount;
 }
 
 bool Rabbit::canReproduce()
 {
-    if(energy > 30)
+    if(energy > 10 && !oldAge())
     {
-        energy -= 30;
+        energy -= 5;
         return true;
     }
     return false;
@@ -34,7 +34,7 @@ void Rabbit::exist()
 
 bool Rabbit::oldAge()
 {
-    return age > 4;
+    return age > 10;
 }
 
 void Rabbit::kill()

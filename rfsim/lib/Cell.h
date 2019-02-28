@@ -28,9 +28,16 @@ public:
     Cell(const double &initial_grass, const unsigned long &no_rabbits, const unsigned long &no_foxes,
          const Coordinates &coordinates);
 
-    void setup();
+    /**
+     * @brief Sets up the cell
+     * @param random the random number to use for generating individuals' ages
+     */
+    void setup(shared_ptr<RNGController> random);
 
-    void growGrass();
+    /**
+     * @brief Grows the grass in this cell
+     */
+    void growGrass(shared_ptr<RNGController> random);
 
     /**
      * @brief Iterate over the consumption stages (rabbits eating grass and foxes eating rabbits).
@@ -42,7 +49,7 @@ public:
      * @brief Allow animals to reproduce
      * @param random the random number generator
      */
-    void reproduce(shared_ptr<RNGController> random);
+    void reproduce();
 
     /**
      * @brief Move rabbits according to a dispersal kernel.
@@ -63,13 +70,6 @@ public:
     vector<Fox> moveFoxes(shared_ptr<RNGController> random, const unsigned long &x_max, const unsigned long &y_max);
 
     /**
-     * @brief Checks the rabbit carrying capacity, and kills them off as necessary.
-     * @param k the carrying capacity
-     */
-    void checkRabbitCarryingCapacity(const unsigned long &k);
-
-    void checkFoxCarryingCapacity(const unsigned long &k);
-    /**
      * @brief Adds a rabbit to the cell
      * @param rabbit the rabbit to add
      */
@@ -85,7 +85,7 @@ public:
      * @brief Set the location of the cell
      * @param coordinates the location in coordinates
      */
-    void setLocation(const Coordinates &coordinates);
+    void setLocation(const Coordinates &coordinates, shared_ptr<RNGController> random);
 
     /**
      * @brief Get the number of foxes in the cell

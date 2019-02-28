@@ -7,6 +7,7 @@
 #include <Python.h>
 #include <structmember.h>
 #include <memory>
+#include "numpy/arrayobject.h"
 #include "Landscape.h"
 
 /**
@@ -24,11 +25,22 @@ public:
 };
 
 /**
+ * @brief Support for numpy returning array
+ * @param capsule the python object capsule
+ */
+void capsuleCleanup(PyObject *capsule)
+{
+    void *memory = PyCapsule_GetPointer(capsule, NULL);
+    // Use your specific gc implementation in place of free if you have to
+    free(memory);
+}
+
+/**
  * @brief Traverse the PyLandscape object
  * @param self object to traverse
  */
 static int
-PyTemplate_traverse(PyLandscape* self, visitproc visit, void* arg)
+PyTemplate_traverse(PyLandscape *self, visitproc visit, void *arg)
 {
     return 0;
 }
@@ -38,7 +50,7 @@ PyTemplate_traverse(PyLandscape* self, visitproc visit, void* arg)
  * @param self object to clear
  */
 static int
-PyTemplate_clear(PyLandscape* self)
+PyTemplate_clear(PyLandscape *self)
 {
     return 0;
 }
@@ -48,7 +60,7 @@ PyTemplate_clear(PyLandscape* self)
  * @param self object to deallocate
  */
 static void
-PyTemplate_dealloc(PyLandscape* self)
+PyTemplate_dealloc(PyLandscape *self)
 {
     if(self->landscape != nullptr)
     {
@@ -57,7 +69,7 @@ PyTemplate_dealloc(PyLandscape* self)
     }
     PyObject_GC_UnTrack(self);
     PyTemplate_clear(self);
-    Py_TYPE(self)->tp_free((PyObject*) self);
+    Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
 /**
@@ -66,12 +78,12 @@ PyTemplate_dealloc(PyLandscape* self)
  * @param kwds (empty) keyword arguments for construction
  * @return the new object
  */
-static PyObject*
-PyLandscape_new(PyTypeObject* type, PyObject* args, PyObject* kwds)
+static PyObject *
+PyLandscape_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    PyLandscape* self;
-    self = (PyLandscape*) type->tp_alloc(type, 0);
-    return (PyObject*) self;
+    PyLandscape *self;
+    self = (PyLandscape *) type->tp_alloc(type, 0);
+    return (PyObject *) self;
 }
 
 /**
@@ -82,7 +94,7 @@ PyLandscape_new(PyTypeObject* type, PyObject* args, PyObject* kwds)
  * @return
  */
 static int
-PyTemplate_init(PyLandscape* self, PyObject* args, PyObject* kwds)
+PyTemplate_init(PyLandscape *self, PyObject *args, PyObject *kwds)
 {
     self->landscape = std::make_unique<Landscape>();
     return 0;
@@ -93,7 +105,7 @@ PyTemplate_init(PyLandscape* self, PyObject* args, PyObject* kwds)
  * @param self the Python self object
  * @param args arguments to parse
  */
-static PyObject* setup(PyLandscape* self, PyObject* args)
+static PyObject *setup(PyLandscape *self, PyObject *args)
 {
     // Set up the simulation, catch and return any errors.
     unsigned long seed;
@@ -114,18 +126,39 @@ static PyObject* setup(PyLandscape* self, PyObject* args)
     }
     Py_RETURN_NONE;
 }
+
 /**
  * @brief Get the array of rabbits
  * @param self the landscape to get the rabbits for
  * @param args
  * @return the array of rabbits
  */
-static PyObject* getRabbitsArray(PyLandscape* self, PyObject* args)
+static PyObject *getRabbitsArray(PyLandscape *self, PyObject *args)
 {
     // Set up the simulation, catch and return any errors.
     try
     {
-        return self->landscape->getRabbitNumbers();
+        // this is required for numpy
+        import_array1(nullptr);
+        // Dimensions of the numpy array
+        npy_intp dims[2]{static_cast<long int>(self->landscape->getRows()),
+                         static_cast<long int>(self->landscape->getCols())};
+        // the output data
+        int *out_rabbits = new int[self->landscape->getRows() * self->landscape->getCols()];
+        unsigned long index = 0;
+        for(unsigned long i = 0; i < self->landscape->getRows(); i++)
+        {
+            for(unsigned long j = 0; j < self->landscape->getCols(); j++)
+            {
+                out_rabbits[index] = static_cast<int>(self->landscape->get(i, j).getNumRabbits());
+                index++;
+            }
+        }
+        PyObject *pArray = PyArray_SimpleNewFromData(2, dims, NPY_INT, (void *) out_rabbits);
+        PyObject *capsule = PyCapsule_New(out_rabbits, NULL, capsuleCleanup);
+        // NULL can be a string but use the same string while calling PyCapsule_GetPointer inside capsule_cleanup
+        PyArray_SetBaseObject((PyArrayObject *) pArray, capsule);
+        return pArray;
     }
     catch(exception &e)
     {
@@ -140,12 +173,32 @@ static PyObject* getRabbitsArray(PyLandscape* self, PyObject* args)
  * @param args
  * @return the array of foxes
  */
-static PyObject* getFoxesArray(PyLandscape* self, PyObject* args)
+static PyObject *getFoxesArray(PyLandscape *self, PyObject *args)
 {
     // Set up the simulation, catch and return any errors.
     try
     {
-        return self->landscape->getFoxNumbers();
+        // this is required for numpy
+        import_array1(nullptr);
+        // Dimensions of the numpy array
+        npy_intp dims[2]{static_cast<long int>(self->landscape->getRows()),
+                         static_cast<long int>(self->landscape->getCols())};
+        // the output data
+        int *out_foxes = new int[self->landscape->getRows() * self->landscape->getCols()];
+        unsigned long index = 0;
+        for(unsigned long i = 0; i < self->landscape->getRows(); i++)
+        {
+            for(unsigned long j = 0; j < self->landscape->getCols(); j++)
+            {
+                out_foxes[index] = static_cast<int>(self->landscape->get(i, j).getNumFoxes());
+                index++;
+            }
+        }
+        PyObject *pArray = PyArray_SimpleNewFromData(2, dims, NPY_INT, (void *) out_foxes);
+        PyObject *capsule = PyCapsule_New(out_foxes, NULL, capsuleCleanup);
+        // NULL can be a string but use the same string while calling PyCapsule_GetPointer inside capsule_cleanup
+        PyArray_SetBaseObject((PyArrayObject *) pArray, capsule);
+        return pArray;
     }
     catch(exception &e)
     {
@@ -160,7 +213,7 @@ static PyObject* getFoxesArray(PyLandscape* self, PyObject* args)
  * @param args arguments to parse
  * @return Py_RETURN_TRUE if the simulation completes, Py_RETURN_FALSE otherwise.
  */
-static PyObject* iterate(PyLandscape* self, PyObject* args)
+static PyObject *iterate(PyLandscape *self, PyObject *args)
 {
     // Run the program, catch and return any errors.
     try
@@ -187,16 +240,16 @@ static PyObject* iterate(PyLandscape* self, PyObject* args)
  * @brief Generates the object methods for python.
  * @return the method definition
  */
-static PyMethodDef* genPyLandscapeMethods()
+static PyMethodDef *genPyLandscapeMethods()
 {
     static PyMethodDef PyLandscapeMethods[] = {
-            {"iterate", (PyCFunction) iterate, METH_VARARGS,
+            {"iterate",     (PyCFunction) iterate,         METH_VARARGS,
                     "Run the simulation"},
             {"get_rabbits", (PyCFunction) getRabbitsArray, METH_VARARGS,
                     "Get the array of rabbits"},
-            {"get_foxes", (PyCFunction) getFoxesArray, METH_VARARGS,
+            {"get_foxes",   (PyCFunction) getFoxesArray,   METH_VARARGS,
                     "Get the array of foxes"},
-            {"setup",   (PyCFunction) setup,   METH_VARARGS,
+            {"setup",       (PyCFunction) setup,           METH_VARARGS,
                     "Set up the simulation, importing the maps and assigning the variables."},
             {nullptr}  /* Sentinel */
     };
@@ -209,7 +262,7 @@ static PyMethodDef* genPyLandscapeMethods()
  * @param tp_doc the type documentation
  * @return the type object
  */
-PyTypeObject genPyLandscapeType(char* tp_name, char* tp_doc)
+PyTypeObject genPyLandscapeType(char *tp_name, char *tp_doc)
 {
     auto genPyTemplateNew = PyLandscape_new;
     auto genPyTemplateInit = PyTemplate_init;
@@ -233,7 +286,7 @@ PyTypeObject genPyLandscapeType(char* tp_name, char* tp_doc)
     return ret_Simulation_Type;
 }
 
-static PyTypeObject C_Landscape_Type = genPyLandscapeType((char*) "librfsim.Landscape",
-                                                          (char*) "C class for rabbit and fox simulations.");
+static PyTypeObject C_Landscape_Type = genPyLandscapeType((char *) "librfsim.CLandscape",
+                                                          (char *) "C class for rabbit and fox simulations.");
 
 #endif // PY_WRAPPER

@@ -61,7 +61,7 @@ setup(name='rfsim',
 				   'Natural Language :: English',],
 	  zip_safe=False,
 	  keywords='modelling',
-	  install_requires=['GDAL>=1.11.2', 'numpy'],
+	  install_requires=['numpy'],
 	  extras_require={
 		  'scipy': ['scipy>=0.12.0'],
 		  'plotting': ['matplotlib']}

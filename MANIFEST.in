@@ -1,0 +1,8 @@
+include rfsim/*.py
+recursive-include rfsim/lib *.cpp *.h
+global-exclude *.pyc
+prune rfsim/lib/cmake-*
+include LICENSE.txt
+include rfsim/lib/CMakeLists.txt
+include requirements.txt
+global-exclude *DS_Store

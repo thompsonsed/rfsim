@@ -34,6 +34,20 @@ public:
         this->sigma = sigma;
     }
 
+    virtual ~Animal() = default;
+
+    /**
+     * @brief Gets the energy of the animal
+     * @return
+     */
+    double getEnergy() const;
+
+    /**
+     * @brief Sets the age of the animal
+     * @param age the new age
+     */
+    void setAge(int age);
+
     /**
      * @brief Gets the location of this animal.
      * @return the x, y coordinates
