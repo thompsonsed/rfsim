@@ -1,6 +1,6 @@
 {% set name = "rfsim" %}
-{% set version = "0.0.2a3" %}
-{% set sha256 = "01713a80b2559fe692865c466e91181e4cb910fac7d7665968ee90d2666dd98d" %}
+{% set version = "0.0.2a4" %}
+{% set sha256 = "2514c85534871f26c4e231e42ea438d21123fba75e9e1b3ae22177d09588fc16" %}
 
 package:
   name: {{ name|lower }}
@@ -9,7 +9,7 @@ package:
 source:
   fn: {{ name }}-{{ version }}.tar.gz
 #  url: https://pypi.io/pypi/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
-  url: https://test-files.pythonhosted.org/packages/d1/91/c0207ebc82c717fc9b1aa36f4632e94f70b708e7297c09092054fec4a865/rfsim-0.0.2a3.tar.gz
+  url: https://test-files.pythonhosted.org/packages/8f/d1/f80bb4d304dbab4d9d741fb89d87862489fe02fa834cf6e9ae5864d7296e/rfsim-0.0.2a4.tar.gz
   sha256: {{ sha256 }}
 build:
   number: 0

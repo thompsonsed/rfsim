@@ -250,7 +250,7 @@ static PyMethodDef *genPyLandscapeMethods()
             {"get_foxes",   (PyCFunction) getFoxesArray,   METH_VARARGS,
                     "Get the array of foxes"},
             {"setup",       (PyCFunction) setup,           METH_VARARGS,
-                    "Set up the simulation, importing the maps and assigning the variables."},
+                    "Set up the simulation."},
             {nullptr}  /* Sentinel */
     };
     return PyLandscapeMethods;
