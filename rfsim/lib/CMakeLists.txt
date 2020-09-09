@@ -7,8 +7,9 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(SOURCE_FILES Animal.cpp Animal.h Coordinates.h Matrix.h RNGController.h Xoroshiro256plus.h Rabbit.cpp
         Rabbit.h Landscape.cpp Landscape.h Cell.cpp Cell.h Fox.cpp Fox.h)
 set(PYTHON_SOURCE_FILES PyWrapper.h clib.cpp clib.h)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-#add_executable(lib ${SOURCE_FILES} main.cpp)
+# add_executable(lib ${SOURCE_FILES} main.cpp)
 
 if (APPLE)
     set(CMAKE_SHARED_LIBRARY_SUFFIX ".so")
@@ -17,7 +18,11 @@ elseif(WINDOWS)
     set(CMAKE_SHARED_LIBRARY_SUFFIX ".pyd")
 endif()
 add_library(rfsim SHARED ${SOURCE_FILES} ${PYTHON_SOURCE_FILES})
-
+if (DEFINED ENV{CONDA_PREFIX})
+    message(STATUS "Installing inside conda env at $ENV{PREFIX}")
+    set(CMAKE_INSTALL_PREFIX "$ENV{PREFIX}")
+    set(CMAKE_PREFIX_PATH "$ENV{PREFIX}")
+endif()
 
 if(NOT WINDOWS)
     if(PYTHON_CPPFLAGS)
@@ -37,6 +42,8 @@ if(NUMPY_INCLUDE_DIR)
 endif()
 #find_package(Boost 1.64.0 REQUIRED COMPONENTS system python)
 message(STATUS "CPPFLAGS: ${PYTHON_CPPFLAGS}")
+
+
 if(WINDOWS)
     SET (CMAKE_LIBRARY_OUTPUT_DIRECTORY  ${OUTPUT_BINDIR} CACHE PATH "build directory")
     target_link_libraries(rfsim ${PYTHON_LIBRARIES})

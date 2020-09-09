@@ -3,6 +3,15 @@
  */
 
 #include "Animal.h"
+double Animal::getEnergy() const
+{
+    return energy;
+}
+
+void Animal::setAge(int age)
+{
+    Animal::age = age;
+}
 
 const Coordinates &Animal::getLocation() const
 {
@@ -16,7 +25,7 @@ void Animal::setLocation(const Coordinates &location)
 
 bool Animal::survives()
 {
-    return energy > 0.0 && !oldAge();
+    return energy > 0.1 && !oldAge();
 }
 
 bool Animal::oldAge()
@@ -26,9 +35,12 @@ bool Animal::oldAge()
 
 void Animal::move(std::shared_ptr<RNGController> random)
 {
-    location.x += static_cast<long>(random->norm(sigma));
-    location.y += static_cast<long>(random->norm(sigma));
-    energy -= 10;
+    if(random->d01() < 0.1)
+    {
+        location.x += random->i0(sigma) - int(sigma / 2);
+        location.y += random->i0(sigma) - int(sigma / 2);
+        energy -= 10;
+    }
 }
 
 void Animal::checkBoundaries(const long &x_max, const long &y_max)
@@ -43,3 +55,5 @@ bool Animal::atLocation(const Coordinates &coordinates) const
 {
     return coordinates.x == location.x && coordinates.y == location.y;
 }
+
+

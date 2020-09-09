@@ -4,8 +4,7 @@
 
 #include "Cell.h"
 
-Cell::Cell() : Cell(100.0, 10, 1)
-{ }
+Cell::Cell() : Cell(100.0, 10, 1){}
 
 Cell::Cell(const double &initial_grass, const unsigned long &no_rabbits, const unsigned long &no_foxes) :
         Cell(initial_grass, no_rabbits, no_foxes, Coordinates(0, 0))
@@ -14,27 +13,31 @@ Cell::Cell(const double &initial_grass, const unsigned long &no_rabbits, const u
 }
 
 Cell::Cell(const double &initial_grass, const unsigned long &no_rabbits, const unsigned long &no_foxes,
-           const Coordinates &coordinates) : grass_amount(initial_grass), rabbits(no_rabbits), foxes(no_foxes),
-                                             location(coordinates)
+           const Coordinates &coordinates)
+        : grass_amount(initial_grass), rabbits(no_rabbits), foxes(no_foxes),
+          location(coordinates)
 {
-    setup();
 }
 
-void Cell::setup()
+void Cell::setup(shared_ptr<RNGController> random)
 {
+    // Set the ages and randomise their initial ages
     for(auto &rabbit: rabbits)
     {
         rabbit.setLocation(location);
+        rabbit.setAge(static_cast<int>(random->i0(3)));
     }
     for(auto &fox: foxes)
     {
         fox.setLocation(location);
+        fox.setAge(static_cast<int>(random->i0(9)));
     }
+
 }
 
-void Cell::growGrass()
+void Cell::growGrass(shared_ptr<RNGController> random)
 {
-    grass_amount += 10.0;
+    grass_amount += random->i0(500) + 1000;
 }
 
 void Cell::iterate(shared_ptr<RNGController> random)
@@ -44,7 +47,7 @@ void Cell::iterate(shared_ptr<RNGController> random)
         if(grass_amount > 1.0)
         {
             rabbit.eatGrass(grass_amount);
-            grass_amount -= 10;
+            grass_amount -= 30;
         }
         rabbit.exist();
     }
@@ -57,24 +60,29 @@ void Cell::iterate(shared_ptr<RNGController> random)
         }
 
     }
-    reproduce(random);
+    reproduce();
     rabbits.erase(std::remove_if(rabbits.begin(), rabbits.end(),
-                                 [this](Rabbit x) { return !x.survives(); }),
+                                 [](Rabbit x){return !x.survives();}),
                   rabbits.end());
     foxes.erase(std::remove_if(foxes.begin(), foxes.end(),
-                               [this](Fox x) { return !x.survives(); }),
+                               [](Fox x){return !x.survives();}),
                 foxes.end());
+    if(foxes.size() > 10)
+    {
+        int number = static_cast<int>(foxes.size() - 10);
+        foxes.erase(foxes.begin(), foxes.begin() + number);
+    }
 
 }
 
-void Cell::reproduce(shared_ptr<RNGController> random)
+void Cell::reproduce()
 {
     unsigned long total = 0;
     for(auto &rabbit: rabbits)
     {
-        if(rabbit.canReproduce())
+        while(rabbit.canReproduce())
         {
-            total += 10;
+            total ++;
         }
     }
     for(unsigned long i = 0; i < total; i++)
@@ -84,9 +92,9 @@ void Cell::reproduce(shared_ptr<RNGController> random)
     total = 0;
     for(auto &fox: foxes)
     {
-        if(fox.canReproduce())
+        while(fox.canReproduce())
         {
-            total += 1;
+            total ++;
         }
     }
     for(unsigned long i = 0; i < total; i++)
@@ -108,7 +116,7 @@ vector<Rabbit> Cell::moveRabbits(shared_ptr<RNGController> random, unsigned long
         }
     }
     rabbits.erase(std::remove_if(rabbits.begin(), rabbits.end(),
-                                 [this](Rabbit x) { return !x.atLocation(this->location); }),
+                                 [this](Rabbit x){return !x.atLocation(this->location);}),
                   rabbits.end());
     return moved_rabbits;
 }
@@ -126,26 +134,11 @@ vector<Fox> Cell::moveFoxes(shared_ptr<RNGController> random, const unsigned lon
         }
     }
     foxes.erase(std::remove_if(foxes.begin(), foxes.end(),
-                               [this](Fox x) { return !x.atLocation(this->location); }),
+                               [this](Fox x){return !x.atLocation(this->location);}),
                 foxes.end());
     return moved_foxes;
 }
 
-void Cell::checkRabbitCarryingCapacity(const unsigned long &k)
-{
-    if(rabbits.size() > k)
-    {
-        rabbits.erase(rabbits.begin(), rabbits.begin() + k);
-    }
-}
-
-void Cell::checkFoxCarryingCapacity(const unsigned long &k)
-{
-    if(foxes.size() > k)
-    {
-        foxes.erase(foxes.begin(), foxes.begin() + k);
-    }
-}
 void Cell::addRabbit(Rabbit &rabbit)
 {
     rabbits.push_back(rabbit);
@@ -156,10 +149,10 @@ void Cell::addFox(Fox &fox)
     foxes.push_back(fox);
 }
 
-void Cell::setLocation(const Coordinates &coordinates)
+void Cell::setLocation(const Coordinates &coordinates, shared_ptr<RNGController> random)
 {
     location = coordinates;
-    setup();
+    setup(random);
 }
 
 unsigned long Cell::getNumFoxes()

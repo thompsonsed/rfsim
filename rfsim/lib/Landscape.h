@@ -9,11 +9,6 @@
 #include "Python.h"
 #include "Cell.h"
 #include "Matrix.h"
-/**
- * @brief Support for numpy returning array
- * @param capsule the python object capsule
- */
-void capsuleCleanup(PyObject *capsule);
 
 /**
  * @brief Holds the landscape of foxes and rabbits and controls their behaviours.
@@ -54,24 +49,34 @@ public:
      */
     void print();
 
-
-
     /**
-     * @brief Get the number of rabbits in the landscape as a numpy array.
-     * @return the number of rabbits in the numpy array
+     * @brief Get the number of rows in the landscape
+     * @return the number of rows
      */
-    PyObject * getRabbitNumbers();
+    unsigned long getRows() const
+    {
+        return landscape.getRows();
+    }
 
     /**
-    * @brief Get the number of foxes in the landscape as a numpy array.
-    * @return the number of foxes in the numpy array
-    */
-    PyObject * getFoxNumbers();
+     * @brief Get the number of columns in the landscape
+     * @return the number of columns
+     */
+    unsigned long getCols() const
+    {
+        return landscape.getCols();
+    }
 
-
-
-
-
+    /**
+     * @brief Gets the cell at the specified location
+     * @param i the row
+     * @param j the column
+     * @return
+     */
+    Cell get(const unsigned long &i, const unsigned long &j)
+    {
+        return landscape.get(i, j);
+    }
 
 };
 

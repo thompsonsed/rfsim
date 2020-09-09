@@ -1,8 +1,10 @@
+.DS_Store
 .ipynb_checkpoints/
 rfsim/tests/__pycache__/
 rfsim/librfsim/__pycache__/
 rfsim/librfsim/librfsim.so
 */__pycache__/
+dist/
 build/
 .idea/
 rfsim.egg-info/
